@@ -71,3 +71,4 @@ app.use(
   require("./routes/productOwner/product/Product")
 );
 app.use("/product", require("./routes/affiliate/link/Link"));
+app.use("/general/products", require("./routes/general/products/Products"));

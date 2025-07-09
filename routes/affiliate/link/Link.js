@@ -183,4 +183,40 @@ router.get("/api/redirect/:linkId", async (req, res) => {
   }
 });
 
+//Get User's Affiliate Links
+router.get(
+  "/my-affiliate-links",
+  VerifyAffilliateMarketerJWTToken,
+  async (req, res) => {
+    try {
+      if (req.user.type !== "Affiliate") {
+        return res.status(403).json({
+          Access: true,
+          Error: "Only affiliate marketers can view their links",
+        });
+      }
+
+      const affiliateLinks = await AffiliateLinkModel.find({
+        affiliateMarketer: req.user._id,
+      })
+        .populate(
+          "product",
+          "name description currency affiliateCommission isActive"
+        )
+        .sort({ createdAt: -1 });
+
+      const linksWithUrls = affiliateLinks.map((link) => ({
+        ...link.toObject(),
+        shareUrl: `${req.protocol}://${req.get("host")}/product/api/redirect/${
+          link.uniqueLinkId
+        }`,
+      }));
+
+      res.json({ Access: true, affiliateLinks: linksWithUrls });
+    } catch (error) {
+      res.status(400).json({ Access: true, Error: Errordisplay(error).msg });
+    }
+  }
+);
+
 module.exports = router;

@@ -7,6 +7,7 @@ const BalanceModel = require("../../../models/wallet/Balance.model");
 const { uploadimg } = require("../../../utils/Cloudinary.utils");
 const { v4: uuidv4 } = require("uuid");
 const ProductModel = require("../../../models/products/Product.model");
+const AffiliateLinkModel = require("../../../models/products/AffiliateLink.model");
 const router = express.Router();
 
 // Create Product
@@ -109,6 +110,55 @@ router.post("/add", VerifyProductOwnerJWTToken, async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({ Access: true, Error: Errordisplay(error).msg });
+  }
+});
+
+// Get Product Details
+router.get("/:productId", async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    const product = await ProductModel.findById(productId).populate(
+      "productOwner",
+      "FullName Email"
+    );
+
+    if (!product) {
+      return res.status(404).json({ Access: true, Error: "Product not found" });
+    }
+
+    // Check if user is the product owner or return limited info
+    res.json({
+      Access: true,
+      product,
+      affiliateLinks: await AffiliateLinkModel.find({ product: productId })
+        .populate("affiliateMarketer", "FullName Email")
+        .select("uniqueLinkId clickCount totalEarnings isActive createdAt"),
+    });
+  } catch (error) {
+    res.status(400).json({ Access: true, Error: Errordisplay(error).msg });
+  }
+});
+
+// Get User's Products
+router.get("/my/products", VerifyProductOwnerJWTToken, async (req, res) => {
+  try {
+    if (req.user.type !== "Product Owner") {
+      return res.status(403).json({
+        Access: true,
+        Error: "Only product owners can view their products",
+      });
+    }
+
+    const products = await ProductModel.find({
+      productOwner: req.user._id,
+    }).sort({
+      createdAt: -1,
+    });
+
+    res.json({ Access: true, products });
+  } catch (error) {
+    res.status(500).json({ Access: true, Error: Errordisplay(error).msg });
   }
 });
 
