@@ -61,3 +61,13 @@ app.use(
   "/productowner/auth/login",
   require("./routes/productOwner/auth/Login")
 );
+app.use(
+  "/affiliate/auth/register",
+  require("./routes/affiliate/auth/Register")
+);
+app.use("/affiliate/auth/login", require("./routes/affiliate/auth/Login"));
+app.use(
+  "/productowner/products",
+  require("./routes/productOwner/product/Product")
+);
+app.use("/product", require("./routes/affiliate/link/Link"));

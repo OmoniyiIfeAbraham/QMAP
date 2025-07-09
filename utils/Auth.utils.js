@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const crypto = require("crypto");
 const AuthModel = require("../models/general/Auth.model");
+const ProfileModel = require("../models/user/Profile.model");
 
 function createHash(jsonBody, apiKey) {
   // Convert JSON body to string
@@ -110,50 +111,85 @@ async function VerifyAdminJWTToken(req, res, next) {
   });
 }
 
-// async function VerifyClientJWTToken(req, res, next) {
-//   const authHeader = req.headers.authorization;
+async function VerifyProductOwnerJWTToken(req, res, next) {
+  const authHeader = req.headers.authorization;
 
-//   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-//     return res
-//       .status(401)
-//       .json({ Error: "Authorization token missing or malformed" });
-//   }
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ Error: "Authorization token missing or malformed" });
+  }
 
-//   const token = authHeader.split(" ")[1]; // Extract the token
+  const token = authHeader.split(" ")[1]; // Extract the token
 
-//   jwt.verify(token, process.env.jwtSecret, async (err, decoded) => {
-//     if (err) {
-//       return res.status(401).json({ Error: "Invalid or expired token" });
-//     }
+  jwt.verify(token, process.env.jwtSecret, async (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ Error: "Invalid or expired token" });
+    }
 
-//     let GetAuth = await AuthModel.findOne({
-//       Auth: token,
-//       UserID: decoded.id,
-//       TypeOf: "Client",
-//     }).lean();
+    let GetAuth = await AuthModel.findOne({
+      Auth: token,
+      UserID: decoded.id,
+      TypeOf: "Product Owner",
+    }).lean();
 
-//     if (GetAuth) {
-//       let User = await UserClientModel.findOne({ _id: decoded.id })
-//         .select("-Password")
-//         .lean();
+    if (GetAuth) {
+      let User = await ProfileModel.findOne({ _id: decoded.id })
+        .select("-Password")
+        .lean();
 
-//       if (User.Blocked)
-//         return res
-//           .status(403)
-//           .json({ Access: false, Error: "User has been blocked" });
-//       req.user = User;
-//       return next();
-//     }
+      req.user = User;
+      return next();
+    }
 
-//     return res
-//       .status(401)
-//       .json({ Access: false, Error: "Unauthorized, please log in again" });
-//   });
-// }
+    return res
+      .status(401)
+      .json({ Access: false, Error: "Unauthorized, please log in again" });
+  });
+}
+
+async function VerifyAffilliateMarketerJWTToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ Error: "Authorization token missing or malformed" });
+  }
+
+  const token = authHeader.split(" ")[1]; // Extract the token
+
+  jwt.verify(token, process.env.jwtSecret, async (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ Error: "Invalid or expired token" });
+    }
+
+    let GetAuth = await AuthModel.findOne({
+      Auth: token,
+      UserID: decoded.id,
+      TypeOf: "Affiliate",
+    }).lean();
+
+    if (GetAuth) {
+      let User = await ProfileModel.findOne({ _id: decoded.id })
+        .select("-Password")
+        .lean();
+
+      req.user = User;
+      return next();
+    }
+
+    return res
+      .status(401)
+      .json({ Access: false, Error: "Unauthorized, please log in again" });
+  });
+}
 
 module.exports = {
   Errordisplay,
   CreateJWTToken,
   VerifyAdminJWTToken,
   createHash,
+  VerifyProductOwnerJWTToken,
+  VerifyAffilliateMarketerJWTToken,
 };

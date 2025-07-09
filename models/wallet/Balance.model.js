@@ -26,6 +26,12 @@ const Balance = new Schema(
       default: 0,
       min: [0, "Balance is too small"],
     },
+    Reserved: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: [0, "Reserved Balance is too small"],
+    },
   },
   { timestamps: true }
 );
