@@ -80,3 +80,4 @@ app.use(
   "/productowner/wallet/withdraw",
   require("./routes/productOwner/wallet/Withdraw")
 );
+app.use("/webhook", require("./routes/general/Webhook"));
