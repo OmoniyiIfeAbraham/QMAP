@@ -72,3 +72,11 @@ app.use(
 );
 app.use("/product", require("./routes/affiliate/link/Link"));
 app.use("/general/products", require("./routes/general/products/Products"));
+app.use(
+  "/productowner/wallet/deposit",
+  require("./routes/productOwner/wallet/Deposit")
+);
+app.use(
+  "/productowner/wallet/withdraw",
+  require("./routes/productOwner/wallet/Withdraw")
+);
