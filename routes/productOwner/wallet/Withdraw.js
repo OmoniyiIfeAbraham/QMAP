@@ -16,59 +16,6 @@ const AdminTransactionsModel = require("../../../models/wallet/admin/AdminTransa
 const FailedTransactionsModel = require("../../../models/wallet/FailedTransactions.model");
 const router = express.Router();
 
-// paystack
-// router.get("/getBanks", VerifyClientJWTToken, async (req, res) => {
-//   try {
-//     // Fetch list of banks from Paystack
-//     const response = await axios.get("https://api.paystack.co/bank", {
-//       headers: {
-//         Authorization: `Bearer ${process.env.PaystackSecret}`,
-//       },
-//     });
-
-//     if (response.data.status !== true)
-//       return res.status(400).json({
-//         Access: true,
-//         Error: "An Error Occurred while fetching lit of banks!",
-//       });
-
-//     res
-//       .status(200)
-//       .json({ Access: true, Error: false, Data: response.data.data });
-//   } catch (error) {
-//     res.status(400).json({ Access: true, Error: Errordisplay(error).msg });
-//   }
-// });
-
-// router.get("/resolveBank", VerifyClientJWTToken, async (req, res) => {
-//   try {
-//     // inputs
-//     const { AccountNumber, BankCode } = req.query;
-
-//     // resolve bank from Paystack
-//     const response = await axios.get(
-//       `https://api.paystack.co/bank/resolve?account_number=${AccountNumber}&bank_code=${BankCode}`,
-//       {
-//         headers: {
-//           Authorization: `Bearer ${process.env.PaystackSecret}`,
-//         },
-//       }
-//     );
-
-//     if (response.data.status !== true)
-//       return res.status(400).json({
-//         Access: true,
-//         Error: "An Error Occurred while resolving bank!",
-//       });
-
-//     res
-//       .status(200)
-//       .json({ Access: true, Error: false, Data: response.data.data });
-//   } catch (error) {
-//     res.status(400).json({ Access: true, Error: Errordisplay(error).msg });
-//   }
-// });
-
 router.post("/sendOtp", VerifyProductOwnerJWTToken, async (req, res) => {
   try {
     let Email = req.user.Email;

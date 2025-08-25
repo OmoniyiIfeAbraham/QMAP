@@ -7,6 +7,8 @@ const ProductModel = require("../../../models/products/Product.model");
 const AffiliateLinkModel = require("../../../models/products/AffiliateLink.model");
 const crypto = require("crypto");
 const ClickTrackingModel = require("../../../models/products/ClickTracking.model");
+const BalanceModel = require("../../../models/wallet/Balance.model");
+const TransactionsModel = require("../../../models/wallet/Transactions.model");
 const router = express.Router();
 
 // Generate Affiliate Link
@@ -154,12 +156,33 @@ router.get("/api/redirect/:linkId", async (req, res) => {
     await affiliateLink.save();
     await product.save();
     // await affiliateLink.affiliateMarketer.save();
+    await BalanceModel.findOneAndUpdate(
+      { UserID: affiliateLink.affiliateMarketer, TypeOf: "Affiliate" },
+      { $inc: { Balance: commission } }
+    );
+
+    const Balance = await BalanceModel.findOne({
+      UserID: affiliateLink.affiliateMarketer,
+      TypeOf: "Affiliate",
+    });
 
     // Record commission transaction
+    const transaction = new TransactionsModel({
+      WalletID: Balance._id,
+      UserId: affiliateLink.affiliateMarketer,
+      TransRef: affiliateLink._id,
+      Amount: commission,
+      Title: `Affiliate commission: ${product.name}`,
+      Charges: 0,
+      Type: "Credit",
+      Process: "Success",
+      TypeOf: "Affiliate",
+    });
+    await transaction.save();
 
     // Mark commission as paid
-    // clickTracking.commissionPaid = true;
-    // await clickTracking.save();
+    clickTracking.commissionPaid = true;
+    await clickTracking.save();
 
     // Check if max clicks reached and deactivate product
     if (product.currentClicks >= product.maxClicks) {
