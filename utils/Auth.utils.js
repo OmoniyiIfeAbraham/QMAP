@@ -150,7 +150,7 @@ async function VerifyProductOwnerJWTToken(req, res, next) {
  
 async function VerifyAffilliateMarketerJWTToken(req, res, next) {
   const authHeader = req.headers.authorization;
-
+ 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res
       .status(401)
