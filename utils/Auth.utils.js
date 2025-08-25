@@ -147,7 +147,7 @@ async function VerifyProductOwnerJWTToken(req, res, next) {
       .json({ Access: false, Error: "Unauthorized, please log in again" });
   });
 }
-
+ 
 async function VerifyAffilliateMarketerJWTToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
